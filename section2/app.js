@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
+const statusRoutes = require('./routes/status');
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.use((req, res, next) => {
 
 app.use('/feed', feedRoutes);
 app.use('/auth', authRoutes);
+app.use('/status', statusRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
