@@ -1,31 +1,31 @@
 const User = require('../models/user');
 
-exports.getStatus = (req, res, next) => {
+exports.getStatus = async (req, res, next) => {
   const userId = req.userId;
 
-  User.findById(userId)
-    .then(user => {
-      if (!user) {
-        const error = new Error('Could not find user.');
-        error.statusCode = 404;
-        throw error;
-      }
+  try {
+    const user = await User.findById(userId);
 
-      res.status(200).json({
-        message: 'Status fetched.',
-        status: user.status
-      });
-    })
-    .catch(err => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
+    if (!user) {
+      const error = new Error('Could not find user.');
+      error.statusCode = 404;
+      throw error;
+    }
 
-      next(err);
+    res.status(200).json({
+      message: 'Status fetched.',
+      status: user.status
     });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+
+    next(err);
+  }
 };
 
-exports.updateStatus = (req, res, next) => {
+exports.updateStatus = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -37,29 +37,28 @@ exports.updateStatus = (req, res, next) => {
   const userId = req.userId;
   const status = req.body.status;
 
-  User.findById(userId)
-    .then(user => {
-      if (!user) {
-        const error = new Error('Could not find user.');
-        error.statusCode = 404;
-        throw error;
-      }
+  try {
+    const user = await User.findById(userId);
 
-      user.status = status;
+    if (!user) {
+      const error = new Error('Could not find user.');
+      error.statusCode = 404;
+      throw error;
+    }
 
-      return user.save();
-    })
-    .then(result => {
-      res.status(200).json({
-        message: 'Status updated.',
-        status: result.status
-      });
-    })
-    .catch(err => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
+    user.status = status;
 
-      next(err);
+    const result = await user.save();
+
+    res.status(200).json({
+      message: 'Status updated.',
+      status: result.status
     });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+
+    next(err);
+  }
 };
